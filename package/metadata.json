@@ -1,0 +1,22 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "me@vili.dev",
+                "Name": "Vili",
+                "Website": "https://vili.dev"
+            }
+        ],
+        "Category": "Utilities",
+        "Description": "Shows the current electricity price in Finland.",
+        "Icon": "battery",
+        "Id": "dev.vili.sahkoporssi",
+        "Name": "Sähköpörssi",
+        "Version": "1",
+        "Website": "https://github.com/v1li/sahkoporssi-widget",
+        "License": "GPL-3"
+    },
+    "X-Plasma-API": "declarativeappletscript",
+    "X-Plasma-MainScript": "ui/main.qml",
+    "KPackageStructure": "Plasma/Applet"
+}
