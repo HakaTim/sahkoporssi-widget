@@ -11,7 +11,7 @@ This widget is under development still!
 3. `sudo mv package dev.vili.sahkoporssi`
 4. `sudo cp -r dev.vili.sahkoporssi /usr/share/plasma/plasmoids/`
 5. Enter edit mode and press add widgets.
-6. Search "S√hk√p√rssi" and add it to your panel.
+6. Search "S√§hk√∂p√∂rssi" and add it to your panel.
 
 -----------------------------
 ## License
