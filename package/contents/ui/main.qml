@@ -13,12 +13,13 @@ import org.kde.plasma.plasmoid 2.0
 
 Item {
     id: widget
-    property string txt: "Fetching..."
+    property string price: "Fetching..."
+    property string date: ""
     Plasmoid.preferredRepresentation: Plasmoid.compactRepresentation
 
     Plasmoid.fullRepresentation: Item {
-        Layout.minimumWidth: label.implicitWidth
-        Layout.minimumHeight: label.implicitHeight
+        Layout.minimumWidth: widget.implicitWidth
+        Layout.minimumHeight: widget.implicitHeight
         Layout.preferredWidth: 250 * PlasmaCore.Units.devicePixelRatio
         Layout.preferredHeight: 80 * PlasmaCore.Units.devicePixelRatio
 
@@ -26,34 +27,42 @@ Item {
             spacing: 10
 
             Text {
-                text: getCurrentDate()
+                text: widget.date
                 font.pixelSize: 20
                 color: "white"
                 horizontalAlignment: Text.AlignLeft
             }
 
             Text {
-                text: widget.txt
+                text: widget.price
                 font.pixelSize: 10
                 color: "white"
                 horizontalAlignment: Text.AlignHCenter
             }
 
             Text {
-                text: "Made by Vili (https://vili.dev)"
+                text: "<a href='https://vili.dev'>Made by Vili</a> | <a href='https://api.spot-hinta.fi'>Powered by spot-hinta.fi</a>"
+                onLinkActivated: Qt.openUrlExternally(link)
                 font.pixelSize: 9
                 color: "grey"
+                linkColor: theme.textColor
+                elide: Text.ElideLeft
                 horizontalAlignment: Text.AlignRight
             }
         }
     }
 
+    // Update once the widget is opened.
+    Component.onCompleted: {
+        call()
+    }
+
     // Keep updating...
     Timer {
-        interval: 10000
+        interval: 25000
         repeat: true
         running: true
-        onTriggered: fetchElectricityPriceNow()
+        onTriggered: call()
     }
 
     // Gets the current date and time.
@@ -64,8 +73,9 @@ Item {
         var day = now.getDate().toString().padStart(2, '0');
         var hours = now.getHours().toString().padStart(2, '0');
         var minutes = now.getMinutes().toString().padStart(2, '0');
-        var formattedDate = year + '-' + month + '-' + day + ' ' + hours + ':' + minutes;
-        return formattedDate;
+        var seconds = now.getSeconds().toString().padStart(2, '0');
+        var formattedDate = year + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ":" + seconds;
+        widget.date = formattedDate;
     }
 
     // Gets the current hours price.
@@ -81,13 +91,19 @@ Item {
                     var priceWithTax = response.PriceWithTax;
                     // var rank = response.rank;
                     var formattedResponse = `⚡️ Current hour: ${priceNoTax} (${priceWithTax}) snt/kWh`;
-                    widget.txt = formattedResponse;
+                    widget.price = formattedResponse;
                 } else {
                     console.error("Error fetching electricity price:", request.status, request.statusText);
-                    widget.txt = "❌ Error while fetching prices!";
+                    widget.price = "❌ Error while fetching prices!";
                 }
             }
         };
         request.send();
+    }
+
+    // Call both functions.
+    function call() {
+        fetchElectricityPriceNow()
+        getCurrentDate()
     }
 }
