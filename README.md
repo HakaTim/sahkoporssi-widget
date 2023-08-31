@@ -1,7 +1,7 @@
 # sahkoporssi-widget
 Kde plasma widget that shows the currents hour electricity price in Finland
 
-![](https://cdn.discordapp.com/attachments/898172744754167850/1146526164832227498/Screenshot_20230830_222529.png)
+![](https://cdn.discordapp.com/attachments/898172744754167850/1146808937258176563/Screenshot_20230831_170759.png)
 
 This widget is under development still!
 
