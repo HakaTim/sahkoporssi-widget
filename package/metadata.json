@@ -9,7 +9,7 @@
         ],
         "Category": "Utilities",
         "Description": "Shows the current electricity price in Finland.",
-        "Icon": "battery",
+        "Icon": "braindump",
         "Id": "dev.vili.sahkoporssi",
         "Name": "Sähköpörssi",
         "Version": "1.1",

@@ -59,7 +59,7 @@ Item {
 
     // Keep updating...
     Timer {
-        interval: 25000
+        interval: 155000
         repeat: true
         running: true
         onTriggered: call()
