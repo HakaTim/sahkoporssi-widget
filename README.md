@@ -3,8 +3,6 @@ Kde plasma widget that shows the currents hour electricity price in Finland
 
 ![](https://cdn.discordapp.com/attachments/898172744754167850/1146808937258176563/Screenshot_20230831_170759.png)
 
-This widget is under development still!
-
 ## Installation
 1. `git clone https://github.com/V1li/sahkoporssi-widget.git`
 2. `cd sahkoporssi-widget`
@@ -12,6 +10,10 @@ This widget is under development still!
 4. `./setup.sh`
 5. Enter edit mode and press add widgets.
 6. Search "Sähköpörssi" and add it to your panel.
+
+OR
+
+you can install it using the widget manager on Kde by searching for it.
 
 -----------------------------
 ## License
