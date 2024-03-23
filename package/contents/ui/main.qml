@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Vili and contributors.
+ * Copyright (c) 2024. Vili and contributors.
  * This source code is subject to the terms of the GNU General Public
  * License, version 3. If a copy of the GPL was not distributed with this
  * file, You can obtain one at: https://www.gnu.org/licenses/gpl-3.0.txt
@@ -14,36 +14,46 @@ import org.kde.plasma.plasmoid 2.0
 Item {
     id: widget
     property string price: "Fetching..."
-    property string date: ""
+    property string nextPrice: ""
     Plasmoid.preferredRepresentation: Plasmoid.compactRepresentation
 
     Plasmoid.fullRepresentation: Item {
         Layout.minimumWidth: widget.implicitWidth
         Layout.minimumHeight: widget.implicitHeight
         Layout.preferredWidth: 250 * PlasmaCore.Units.devicePixelRatio
-        Layout.preferredHeight: 80 * PlasmaCore.Units.devicePixelRatio
+        Layout.preferredHeight: 90 * PlasmaCore.Units.devicePixelRatio
 
         Column {
-            spacing: 10
+            spacing: 5
 
             Text {
-                text: widget.date
-                font.pixelSize: 20
+                text: widget.price
+                font.pixelSize: 12
                 color: "white"
                 horizontalAlignment: Text.AlignLeft
             }
 
             Text {
-                text: widget.price
+                text: widget.nextPrice
                 font.pixelSize: 10
-                color: "white"
-                horizontalAlignment: Text.AlignHCenter
+                color: "grey"
+                horizontalAlignment: Text.AlignLeft
+            }
+
+            Text {
+                text: "<a href='https://api.spot-hinta.fi/html/150/6'>See more prices...</a>"
+                onLinkActivated: Qt.openUrlExternally(link)
+                font.pixelSize: 9
+                color: "grey"
+                linkColor: theme.textColor
+                elide: Text.ElideLeft
+                horizontalAlignment: Text.AlignRight
             }
 
             Text {
                 text: "<a href='https://vili.dev'>Made by Vili</a> | <a href='https://api.spot-hinta.fi'>Powered by spot-hinta.fi</a>"
                 onLinkActivated: Qt.openUrlExternally(link)
-                font.pixelSize: 9
+                font.pixelSize: 8
                 color: "grey"
                 linkColor: theme.textColor
                 elide: Text.ElideLeft
@@ -54,7 +64,7 @@ Item {
 
     // Update once the widget is opened.
     Component.onCompleted: {
-        call()
+        call();
     }
 
     // Keep updating...
@@ -62,20 +72,7 @@ Item {
         interval: 900000
         repeat: true
         running: true
-        onTriggered: call()
-    }
-
-    // Gets the current date and time.
-    function getCurrentDate() {
-        var now = new Date();
-        var year = now.getFullYear();
-        var month = (now.getMonth() + 1).toString().padStart(2, '0');
-        var day = now.getDate().toString().padStart(2, '0');
-        var hours = now.getHours().toString().padStart(2, '0');
-        var minutes = now.getMinutes().toString().padStart(2, '0');
-        var seconds = now.getSeconds().toString().padStart(2, '0');
-        var formattedDate = year + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ":" + seconds;
-        widget.date = formattedDate;
+        onTriggered: call();
     }
 
     // Gets the current hours price.
@@ -87,14 +84,38 @@ Item {
             if (request.readyState === XMLHttpRequest.DONE) {
                 if (request.status === 200) {
                     var response = JSON.parse(request.responseText);
-                    var priceNoTax = response.PriceNoTax;
-                    var priceWithTax = response.PriceWithTax;
-                    // var rank = response.rank;
-                    var formattedResponse = `⚡️ Current hour: ${priceNoTax} (${priceWithTax}) snt/kWh`;
+                    // console.log(response)
+                    var price = (response.PriceWithTax * 100).toFixed(2);
+                    var formattedResponse = `Currently: ${price} snt/kWh`;
                     widget.price = formattedResponse;
                 } else {
                     console.error("Error fetching electricity price:", request.status, request.statusText);
-                    widget.price = "❌ Error while fetching prices!";
+                    widget.price = "Something went wrong while fetching prices..!";
+                }
+            }
+        };
+        request.send();
+    }
+
+    // Get the price of the next hour.
+    function fetchElectricityPriceNext() {
+        let date = new Date();
+        var minutesLeft = 60 - date.getMinutes();
+        var apiUrl = "https://api.spot-hinta.fi/JustNow?lookForwardHours=1";
+        var request = new XMLHttpRequest();
+
+        request.open("GET", apiUrl, true);
+        request.onreadystatechange = function() {
+            if (request.readyState === XMLHttpRequest.DONE) {
+                if (request.status === 200) {
+                    var response = JSON.parse(request.responseText);
+                    console.error(response)
+                    var price = (response.PriceWithTax * 100).toFixed(2);
+                    var formattedResponse = `Price in ${minutesLeft} minutes: ${price} snt/kWh \n`;
+                    widget.nextPrice = formattedResponse;
+                } else {
+                    console.error("Error fetching electricity price:", request.status, request.statusText);
+                    widget.nextPrice = "Something went wrong while fetching prices..!";
                 }
             }
         };
@@ -103,7 +124,7 @@ Item {
 
     // Call both functions.
     function call() {
-        fetchElectricityPriceNow()
-        getCurrentDate()
+        fetchElectricityPriceNow();
+        fetchElectricityPriceNext();
     }
 }
