@@ -51,7 +51,7 @@ Item {
             }
 
             Text {
-                text: "<a href='https://vili.dev'>Made by Vili</a> | <a href='https://api.spot-hinta.fi'>Powered by spot-hinta.fi</a>"
+                text: "<a href='https://vili.dev'>Made by Vili</a> | <a href='https://spot-hinta.fi'>Powered by spot-hinta.fi</a>"
                 onLinkActivated: Qt.openUrlExternally(link)
                 font.pixelSize: 8
                 color: "grey"
