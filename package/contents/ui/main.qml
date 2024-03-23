@@ -14,14 +14,17 @@ import org.kde.plasma.plasmoid 2.0
 Item {
     id: widget
     property string price: "Fetching..."
-    property string nextPrice: ""
+    property string nextPrice1: ""
+    property string nextPrice2: ""
+    property string nextPrice3: ""
+    
     Plasmoid.preferredRepresentation: Plasmoid.compactRepresentation
 
     Plasmoid.fullRepresentation: Item {
         Layout.minimumWidth: widget.implicitWidth
         Layout.minimumHeight: widget.implicitHeight
         Layout.preferredWidth: 250 * PlasmaCore.Units.devicePixelRatio
-        Layout.preferredHeight: 90 * PlasmaCore.Units.devicePixelRatio
+        Layout.preferredHeight: 110 * PlasmaCore.Units.devicePixelRatio
 
         Column {
             spacing: 5
@@ -34,7 +37,21 @@ Item {
             }
 
             Text {
-                text: widget.nextPrice
+                text: widget.nextPrice1
+                font.pixelSize: 10
+                color: "grey"
+                horizontalAlignment: Text.AlignLeft
+            }
+
+            Text {
+                text: widget.nextPrice2
+                font.pixelSize: 10
+                color: "grey"
+                horizontalAlignment: Text.AlignLeft
+            }
+
+            Text {
+                text: widget.nextPrice3
                 font.pixelSize: 10
                 color: "grey"
                 horizontalAlignment: Text.AlignLeft
@@ -84,7 +101,6 @@ Item {
             if (request.readyState === XMLHttpRequest.DONE) {
                 if (request.status === 200) {
                     var response = JSON.parse(request.responseText);
-                    // console.log(response)
                     var price = (response.PriceWithTax * 100).toFixed(2);
                     var formattedResponse = `Currently: ${price} snt/kWh`;
                     widget.price = formattedResponse;
@@ -98,10 +114,11 @@ Item {
     }
 
     // Get the price of the next hour.
-    function fetchElectricityPriceNext() {
+    function fetchElectricityPriceNext(hours) {
         let date = new Date();
-        var minutesLeft = 60 - date.getMinutes();
-        var apiUrl = "https://api.spot-hinta.fi/JustNow?lookForwardHours=1";
+        date.setHours(date.getHours() + hours);
+        var formattedTime = formatDate(date);
+        var apiUrl = "https://api.spot-hinta.fi/JustNow?lookForwardHours=" + hours;
         var request = new XMLHttpRequest();
 
         request.open("GET", apiUrl, true);
@@ -109,13 +126,32 @@ Item {
             if (request.readyState === XMLHttpRequest.DONE) {
                 if (request.status === 200) {
                     var response = JSON.parse(request.responseText);
-                    console.error(response)
                     var price = (response.PriceWithTax * 100).toFixed(2);
-                    var formattedResponse = `Price in ${minutesLeft} minutes: ${price} snt/kWh \n`;
-                    widget.nextPrice = formattedResponse;
+                    var formattedResponse = `Price at ${formattedTime}: ${price} snt/kWh`;
+                    switch(hours) {
+                        case 1:
+                            widget.nextPrice1 = formattedResponse;
+                            break;
+                        case 2:
+                            widget.nextPrice2 = formattedResponse;
+                            break;
+                        case 3:
+                            widget.nextPrice3 = formattedResponse;
+                            break;
+                    }
                 } else {
                     console.error("Error fetching electricity price:", request.status, request.statusText);
-                    widget.nextPrice = "Something went wrong while fetching prices..!";
+                    switch(hours) {
+                        case 1:
+                            widget.nextPrice1 = "Error fetching price..!";
+                            break;
+                        case 2:
+                            widget.nextPrice2 = "Error fetching price..!";
+                            break;
+                        case 3:
+                            widget.nextPrice3 = "Error fetching price..!";
+                            break;
+                    }
                 }
             }
         };
@@ -125,6 +161,20 @@ Item {
     // Call both functions.
     function call() {
         fetchElectricityPriceNow();
-        fetchElectricityPriceNext();
+        for (let i = 1; i <= 3; i++) {
+            fetchElectricityPriceNext(i);
+        }
+    }
+
+    // Format date to display in a readable format
+    function formatDate(date) {
+        var hours = date.getHours();
+        // var minutes = date.getMinutes();
+        var ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // the hour '0' should be '12'
+        // minutes = minutes < 10 ? '0' + minutes : minutes;
+        var strTime = hours + ' ' + ampm;
+        return strTime;
     }
 }

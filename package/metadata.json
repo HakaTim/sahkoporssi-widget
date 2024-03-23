@@ -8,11 +8,11 @@
             }
         ],
         "Category": "Utilities",
-        "Description": "Shows the current electricity price in Finland.",
+        "Description": "Tells you the current electricity prices in Finland.",
         "Icon": "braindump",
         "Id": "dev.vili.sahkoporssi",
         "Name": "Sähköpörssi",
-        "Version": "1.1",
+        "Version": "1.2.1",
         "Website": "https://github.com/v1li/sahkoporssi-widget",
         "License": "GPL-3"
     },
