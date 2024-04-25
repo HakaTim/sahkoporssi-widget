@@ -5,58 +5,59 @@
  * file, You can obtain one at: https://www.gnu.org/licenses/gpl-3.0.txt
  */
 
-import QtQuick 2.0
-import QtQuick.Layouts 1.0
-import QtQuick.Controls 2.15
-import org.kde.plasma.core 2.0 as PlasmaCore
-import org.kde.plasma.plasmoid 2.0
+import QtQuick
+import QtQuick.Layouts
+import org.kde.kirigami as Kirigami
+import org.kde.plasma.plasmoid
+import org.kde.plasma.components as PlasmaComponents
 
-Item {
+PlasmoidItem {  
     id: widget
+
     property string price: "Fetching..."
     property string nextPrice1: ""
     property string nextPrice2: ""
     property string nextPrice3: ""
     
-    Plasmoid.preferredRepresentation: Plasmoid.compactRepresentation
 
-    Plasmoid.fullRepresentation: Item {
-        Layout.minimumWidth: widget.implicitWidth
-        Layout.minimumHeight: widget.implicitHeight
-        Layout.preferredWidth: 250 * PlasmaCore.Units.devicePixelRatio
-        Layout.preferredHeight: 110 * PlasmaCore.Units.devicePixelRatio
+    Layout.minimumWidth: Kirigami.Units.gridUnit * 5
+    Layout.minimumHeight: Kirigami.Units.gridUnit * 5
+
+    implicitHeight: Kirigami.Units.gridUnit * 8
+    implicitWidth: Kirigami.Units.gridUnit * 10
+
+
+    PlasmaComponents.Label {
+        anchors.fill: parent
+        wrapMode: Text.Wrap
 
         Column {
             spacing: 5
-
+            
             Text {
                 text: widget.price
                 font.pixelSize: 12
                 color: "white"
                 horizontalAlignment: Text.AlignLeft
             }
-
             Text {
                 text: widget.nextPrice1
                 font.pixelSize: 10
                 color: "grey"
                 horizontalAlignment: Text.AlignLeft
             }
-
             Text {
                 text: widget.nextPrice2
                 font.pixelSize: 10
                 color: "grey"
                 horizontalAlignment: Text.AlignLeft
             }
-
             Text {
                 text: widget.nextPrice3
                 font.pixelSize: 10
                 color: "grey"
                 horizontalAlignment: Text.AlignLeft
             }
-
             Text {
                 text: "<a href='https://api.spot-hinta.fi/html/150/6'>See more prices...</a>"
                 onLinkActivated: Qt.openUrlExternally(link)
@@ -66,7 +67,6 @@ Item {
                 elide: Text.ElideLeft
                 horizontalAlignment: Text.AlignRight
             }
-
             Text {
                 text: "<a href='https://vili.dev'>Made by Vili</a> | <a href='https://spot-hinta.fi'>Powered by spot-hinta.fi</a>"
                 onLinkActivated: Qt.openUrlExternally(link)
@@ -78,6 +78,7 @@ Item {
             }
         }
     }
+
 
     // Update once the widget is opened.
     Component.onCompleted: {
