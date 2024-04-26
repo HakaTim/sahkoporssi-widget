@@ -10,77 +10,72 @@ import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
 import org.kde.plasma.plasmoid
 import org.kde.plasma.components as PlasmaComponents
+import org.kde.plasma.extras as PlasmaExtras
 
 PlasmoidItem {  
-    id: widget
+    id: root
 
     property string price: "Fetching..."
     property string nextPrice1: ""
     property string nextPrice2: ""
     property string nextPrice3: ""
-    
 
-    Layout.minimumWidth: Kirigami.Units.gridUnit * 5
-    Layout.minimumHeight: Kirigami.Units.gridUnit * 5
+    Plasmoid.title: "Sähköpörssi"
 
     implicitHeight: Kirigami.Units.gridUnit * 8
     implicitWidth: Kirigami.Units.gridUnit * 10
 
 
-    PlasmaComponents.Label {
-        anchors.fill: parent
-        wrapMode: Text.Wrap
-
-        Column {
-            spacing: 5
-            
-            Text {
-                text: widget.price
-                font.pixelSize: 12
-                color: "white"
-                horizontalAlignment: Text.AlignLeft
-            }
-            Text {
-                text: widget.nextPrice1
-                font.pixelSize: 10
-                color: "grey"
-                horizontalAlignment: Text.AlignLeft
-            }
-            Text {
-                text: widget.nextPrice2
-                font.pixelSize: 10
-                color: "grey"
-                horizontalAlignment: Text.AlignLeft
-            }
-            Text {
-                text: widget.nextPrice3
-                font.pixelSize: 10
-                color: "grey"
-                horizontalAlignment: Text.AlignLeft
-            }
-            Text {
-                text: "<a href='https://api.spot-hinta.fi/html/150/6'>See more prices...</a>"
-                onLinkActivated: Qt.openUrlExternally(link)
-                font.pixelSize: 9
-                color: "grey"
-                linkColor: theme.textColor
-                elide: Text.ElideLeft
-                horizontalAlignment: Text.AlignRight
-            }
-            Text {
-                text: "<a href='https://vili.dev'>Made by Vili</a> | <a href='https://spot-hinta.fi'>Powered by spot-hinta.fi</a>"
-                onLinkActivated: Qt.openUrlExternally(link)
-                font.pixelSize: 8
-                color: "grey"
-                linkColor: theme.textColor
-                elide: Text.ElideLeft
-                horizontalAlignment: Text.AlignRight
+    fullRepresentation: PlasmaExtras.Representation {   
+        Layout.minimumWidth: Kirigami.Units.gridUnit * 5
+        Layout.minimumHeight: Kirigami.Units.gridUnit * 5
+            Column {
+                spacing: 5
+                
+                Text {
+                    text: root.price
+                    font.pixelSize: 12
+                    color: "white"
+                    horizontalAlignment: Text.AlignLeft
+                }
+                Text {
+                    text: root.nextPrice1
+                    font.pixelSize: 10
+                    color: "grey"
+                    horizontalAlignment: Text.AlignLeft
+                }
+                Text {
+                    text: root.nextPrice2
+                    font.pixelSize: 10
+                    color: "grey"
+                    horizontalAlignment: Text.AlignLeft
+                }
+                Text {
+                    text: root.nextPrice3
+                    font.pixelSize: 10
+                    color: "grey"
+                    horizontalAlignment: Text.AlignLeft
+                }
+                Text {
+                    text: "<a href='https://api.spot-hinta.fi/html/150/6'>See more prices...</a>"
+                    onLinkActivated: Qt.openUrlExternally(link)
+                    font.pixelSize: 9
+                    color: "grey"
+                    elide: Text.ElideLeft
+                    horizontalAlignment: Text.AlignRight
+                }
+                Text {
+                    text: "<a href='https://vili.dev'>Made by Vili</a> | <a href='https://spot-hinta.fi'>Powered by spot-hinta.fi</a>"
+                    onLinkActivated: Qt.openUrlExternally(link)
+                    font.pixelSize: 8
+                    color: "grey"
+                    elide: Text.ElideLeft
+                    horizontalAlignment: Text.AlignRight
+                }
             }
         }
-    }
-
-
-    // Update once the widget is opened.
+    
+    // Update once the root is opened.
     Component.onCompleted: {
         call();
     }
@@ -104,10 +99,10 @@ PlasmoidItem {
                     var response = JSON.parse(request.responseText);
                     var price = (response.PriceWithTax * 100).toFixed(2);
                     var formattedResponse = `Currently: ${price} snt/kWh`;
-                    widget.price = formattedResponse;
+                    root.price = formattedResponse;
                 } else {
                     console.error("Error fetching electricity price:", request.status, request.statusText);
-                    widget.price = "Something went wrong while fetching prices..!";
+                    root.price = "Something went wrong while fetching prices..!";
                 }
             }
         };
@@ -131,26 +126,26 @@ PlasmoidItem {
                     var formattedResponse = `Price at ${formattedTime}: ${price} snt/kWh`;
                     switch(hours) {
                         case 1:
-                            widget.nextPrice1 = formattedResponse;
+                            root.nextPrice1 = formattedResponse;
                             break;
                         case 2:
-                            widget.nextPrice2 = formattedResponse;
+                            root.nextPrice2 = formattedResponse;
                             break;
                         case 3:
-                            widget.nextPrice3 = formattedResponse;
+                            root.nextPrice3 = formattedResponse;
                             break;
                     }
                 } else {
                     console.error("Error fetching electricity price:", request.status, request.statusText);
                     switch(hours) {
                         case 1:
-                            widget.nextPrice1 = "Error fetching price..!";
+                            root.nextPrice1 = "Error fetching price..!";
                             break;
                         case 2:
-                            widget.nextPrice2 = "Error fetching price..!";
+                            root.nextPrice2 = "Error fetching price..!";
                             break;
                         case 3:
-                            widget.nextPrice3 = "Error fetching price..!";
+                            root.nextPrice3 = "Error fetching price..!";
                             break;
                     }
                 }
