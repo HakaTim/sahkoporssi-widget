@@ -9,10 +9,10 @@ import QtQuick
 import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
 import org.kde.plasma.plasmoid
-import org.kde.plasma.components as PlasmaComponents
+import org.kde.plasma.components 3.0 as PlasmaComponents
 import org.kde.plasma.extras as PlasmaExtras
 
-PlasmoidItem {  
+PlasmoidItem {
     id: root
 
     property string price: "Fetching..."
@@ -22,58 +22,74 @@ PlasmoidItem {
 
     Plasmoid.title: "Sähköpörssi"
 
-    implicitHeight: Kirigami.Units.gridUnit * 8
-    implicitWidth: Kirigami.Units.gridUnit * 10
+    // Define minimums for the Plasmoid itself
+    property int plasmoidMinimumWidth: Kirigami.Units.gridUnit * 5
+    property int plasmoidMinimumHeight: Kirigami.Units.gridUnit * 5 // Adjusted for content adaptability
 
+    // The PlasmoidItem's size will adapt to its content (fullRepresentation)
+    implicitWidth: Math.max(plasmoidMinimumWidth, representationItem.implicitWidth)
+    implicitHeight: Math.max(plasmoidMinimumHeight, representationItem.implicitHeight)
 
-    fullRepresentation: PlasmaExtras.Representation {   
-        Layout.minimumWidth: Kirigami.Units.gridUnit * 5
-        Layout.minimumHeight: Kirigami.Units.gridUnit * 5
-            Column {
-                spacing: 5
-                
-                Text {
-                    text: root.price
-                    font.pixelSize: 12
-                    color: "white"
-                    horizontalAlignment: Text.AlignLeft
-                }
-                Text {
-                    text: root.nextPrice1
-                    font.pixelSize: 10
-                    color: "grey"
-                    horizontalAlignment: Text.AlignLeft
-                }
-                Text {
-                    text: root.nextPrice2
-                    font.pixelSize: 10
-                    color: "grey"
-                    horizontalAlignment: Text.AlignLeft
-                }
-                Text {
-                    text: root.nextPrice3
-                    font.pixelSize: 10
-                    color: "grey"
-                    horizontalAlignment: Text.AlignLeft
-                }
-                Text {
-                    text: "<a href='https://api.spot-hinta.fi/html/150/6'>See more prices...</a>"
-                    onLinkActivated: Qt.openUrlExternally(link)
-                    font.pixelSize: 9
-                    color: "grey"
-                    elide: Text.ElideLeft
-                    horizontalAlignment: Text.AlignRight
-                }
-                Text {
-                    text: "<a href='https://vili.dev'>Made by Vili</a> | <a href='https://spot-hinta.fi'>Powered by spot-hinta.fi</a>"
-                    onLinkActivated: Qt.openUrlExternally(link)
-                    font.pixelSize: 8
-                    color: "grey"
-                    elide: Text.ElideLeft
-                    horizontalAlignment: Text.AlignRight
-                }
+    fullRepresentation: Item {
+        id: representationItem
+
+        // Padding around the content column
+        readonly property int contentPadding: Kirigami.Units.smallSpacing
+
+        // This Item's implicit size is based on the column plus padding
+        implicitWidth: internalColumn.implicitWidth + (contentPadding * 2)
+        implicitHeight: internalColumn.implicitHeight + (contentPadding * 2)
+
+        Column {
+            id: internalColumn
+            x: representationItem.contentPadding // Apply padding by positioning
+            y: representationItem.contentPadding // Apply padding by positioning
+            // The Column's width will be its implicit width (based on widest child)
+            // Spacing between labels
+            spacing: Kirigami.Units.smallSpacing
+
+            PlasmaComponents.Label {
+                text: root.price
+                font.pixelSize: Kirigami.Theme.defaultFont.pixelSize
+                horizontalAlignment: Text.AlignLeft
+                Layout.fillWidth: true // Fills the width provided by internalColumn
+            }
+            PlasmaComponents.Label {
+                text: root.nextPrice1
+                font.pixelSize: Kirigami.Theme.smallFont.pixelSize
+                horizontalAlignment: Text.AlignLeft
+                Layout.fillWidth: true
+            }
+            PlasmaComponents.Label {
+                text: root.nextPrice2
+                font.pixelSize: Kirigami.Theme.smallFont.pixelSize
+                horizontalAlignment: Text.AlignLeft
+                Layout.fillWidth: true
+            }
+            PlasmaComponents.Label {
+                text: root.nextPrice3
+                font.pixelSize: Kirigami.Theme.smallFont.pixelSize
+                horizontalAlignment: Text.AlignLeft
+                Layout.fillWidth: true
+            }
+            PlasmaComponents.Label {
+                text: "<a href='https://api.spot-hinta.fi/html/150/6'>See more prices...</a>"
+                onLinkActivated: Qt.openUrlExternally(link)
+                font.pixelSize: Math.round(Kirigami.Theme.smallFont.pixelSize * 0.9)
+                elide: Text.ElideLeft
+                horizontalAlignment: Text.AlignRight
+                Layout.fillWidth: true
+            }
+            PlasmaComponents.Label {
+                text: "<a href='https://vili.dev'>Made by Vili</a> | <a href='https://spot-hinta.fi'>Powered by spot-hinta.fi</a>"
+                onLinkActivated: Qt.openUrlExternally(link)
+                font.pixelSize: Math.round(Kirigami.Theme.smallFont.pixelSize * 0.8)
+                elide: Text.ElideLeft
+                horizontalAlignment: Text.AlignRight
+                Layout.fillWidth: true
             }
         }
+    }
     
     // Update once the root is opened.
     Component.onCompleted: {
@@ -82,7 +98,7 @@ PlasmoidItem {
 
     // Keep updating...
     Timer {
-        interval: 900000
+        interval: 900000 // 15 minutes
         repeat: true
         running: true
         onTriggered: call();
@@ -97,12 +113,14 @@ PlasmoidItem {
             if (request.readyState === XMLHttpRequest.DONE) {
                 if (request.status === 200) {
                     var response = JSON.parse(request.responseText);
-                    var price = (response.PriceWithTax * 100).toFixed(2);
-                    var formattedResponse = `Currently: ${price} snt/kWh`;
+                    // Assuming PriceWithTax is in EUR/kWh, converting to snt/kWh
+                    var priceInCents = (response.PriceWithTax * 100).toFixed(2);
+                    // Update label text based on current locale for number formatting if possible, or use as is.
+                    var formattedResponse = `Currently: ${priceInCents} snt/kWh`;
                     root.price = formattedResponse;
                 } else {
-                    console.error("Error fetching electricity price:", request.status, request.statusText);
-                    root.price = "Something went wrong while fetching prices..!";
+                    console.error("Error fetching electricity price (now):", request.status, request.statusText);
+                    root.price = "Error fetching current price!";
                 }
             }
         };
@@ -114,6 +132,7 @@ PlasmoidItem {
         let date = new Date();
         date.setHours(date.getHours() + hours);
         var formattedTime = formatDate(date);
+        // The API seems to provide the price for the hour *starting* at the lookForwardHours offset.
         var apiUrl = "https://api.spot-hinta.fi/JustNow?lookForwardHours=" + hours;
         var request = new XMLHttpRequest();
 
@@ -122,8 +141,8 @@ PlasmoidItem {
             if (request.readyState === XMLHttpRequest.DONE) {
                 if (request.status === 200) {
                     var response = JSON.parse(request.responseText);
-                    var price = (response.PriceWithTax * 100).toFixed(2);
-                    var formattedResponse = `Price at ${formattedTime}: ${price} snt/kWh`;
+                    var priceInCents = (response.PriceWithTax * 100).toFixed(2);
+                    var formattedResponse = `Price at ${formattedTime}: ${priceInCents} snt/kWh`;
                     switch(hours) {
                         case 1:
                             root.nextPrice1 = formattedResponse;
@@ -136,16 +155,17 @@ PlasmoidItem {
                             break;
                     }
                 } else {
-                    console.error("Error fetching electricity price:", request.status, request.statusText);
+                    console.error(`Error fetching electricity price (+${hours}h):`, request.status, request.statusText);
+                    var errorMsg = `Error for ${formattedTime}!`;
                     switch(hours) {
                         case 1:
-                            root.nextPrice1 = "Error fetching price..!";
+                            root.nextPrice1 = errorMsg;
                             break;
                         case 2:
-                            root.nextPrice2 = "Error fetching price..!";
+                            root.nextPrice2 = errorMsg;
                             break;
                         case 3:
-                            root.nextPrice3 = "Error fetching price..!";
+                            root.nextPrice3 = errorMsg;
                             break;
                     }
                 }
@@ -154,7 +174,7 @@ PlasmoidItem {
         request.send();
     }
 
-    // Call both functions.
+    // Call all fetch functions.
     function call() {
         fetchElectricityPriceNow();
         for (let i = 1; i <= 3; i++) {
@@ -162,13 +182,12 @@ PlasmoidItem {
         }
     }
 
-    // Format date to display in a readable format
+    // Format date to display in a readable format (e.g., "5 PM")
     function formatDate(date) {
         var hours = date.getHours();
-        // var minutes = date.getMinutes();
         var ampm = hours >= 12 ? 'PM' : 'AM';
         hours = hours % 12;
-        hours = hours ? hours : 12; // the hour '0' should be '12'
+        hours = hours ? hours : 12;
         // minutes = minutes < 10 ? '0' + minutes : minutes;
         var strTime = hours + ' ' + ampm;
         return strTime;

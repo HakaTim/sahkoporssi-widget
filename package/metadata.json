@@ -4,7 +4,7 @@
     "KPlugin": {
         "Authors": [
             {
-                "Email": "me@vili.dev",
+                "Email": "vili@riseup.net",
                 "Name": "Vili",
                 "Website": "https://vili.dev"
             }
@@ -14,7 +14,7 @@
         "Icon": "braindump",
         "Id": "dev.vili.sahkoporssi",
         "Name": "Sähköpörssi",
-        "Version": "1.3",
+        "Version": "1.4",
         "Website": "https://github.com/vil/sahkoporssi-widget",
         "License": "GPL-3"
     },
