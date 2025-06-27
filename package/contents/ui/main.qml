@@ -16,6 +16,7 @@ PlasmoidItem {
     id: root
 
     property string price: "Fetching..."
+    property string priceInCents: price
     property string nextPrice1: ""
     property string nextPrice2: ""
     property string nextPrice3: ""
@@ -29,6 +30,21 @@ PlasmoidItem {
     // The PlasmoidItem's size will adapt to its content (fullRepresentation)
     implicitWidth: Math.max(plasmoidMinimumWidth, representationItem.implicitWidth)
     implicitHeight: Math.max(plasmoidMinimumHeight, representationItem.implicitHeight)
+
+    preferredRepresentation: compactRepresentation
+
+    compactRepresentation: PlasmaComponents.Label {
+      id: panelText
+      anchors.fill: parent
+      text: isNaN(parseFloat(root.priceInCents)) ? root.priceInCents : `⚡ ${root.priceInCents} snt/kWh`;
+
+      Layout.minimumWidth: implicitWidth
+      MouseArea {
+        hoverEnabled: true
+        anchors.fill: parent
+        onEntered: root.expanded = true
+      }
+    }
 
     fullRepresentation: Item {
         id: representationItem
@@ -89,6 +105,10 @@ PlasmoidItem {
                 Layout.fillWidth: true
             }
         }
+        MouseArea {
+          anchors.fill: parent
+          onExited: root.expanded = false
+        }
     }
     
     // Update once the root is opened.
@@ -118,9 +138,11 @@ PlasmoidItem {
                     // Update label text based on current locale for number formatting if possible, or use as is.
                     var formattedResponse = `Currently: ${priceInCents} snt/kWh`;
                     root.price = formattedResponse;
+                    root.priceInCents = priceInCents;
                 } else {
                     console.error("Error fetching electricity price (now):", request.status, request.statusText);
                     root.price = "Error fetching current price!";
+                    root.priceInCents = root.price;
                 }
             }
         };
