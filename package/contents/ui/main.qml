@@ -42,7 +42,7 @@ PlasmoidItem {
       MouseArea {
         hoverEnabled: true
         anchors.fill: parent
-        onEntered: root.expanded = true
+        onClicked: root.expanded = true
       }
     }
 
@@ -104,10 +104,6 @@ PlasmoidItem {
                 horizontalAlignment: Text.AlignRight
                 Layout.fillWidth: true
             }
-        }
-        MouseArea {
-          anchors.fill: parent
-          onExited: root.expanded = false
         }
     }
     
